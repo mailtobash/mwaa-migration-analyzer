@@ -1,0 +1,32 @@
+# Virtual environment
+.venv/
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Testing
+.pytest_cache/
+.hypothesis/
+
+# Packaging artifacts
+*.egg-info/
+dist/
+build/
+
+# Environment variables
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Archives
+*.zip

@@ -1,0 +1,24 @@
+MWAA Analyzer Agent
+Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License").
+You may not use this file except in compliance with the License.
+A copy of the License is located at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+or in the "license" file accompanying this file.
+
+This product includes software developed at Amazon Web Services, Inc.
+
+Third-party dependencies:
+
+- Strands Agents SDK (https://strandsagents.com/) - Apache License 2.0
+- Click (https://click.palletsprojects.com/) - BSD License
+- httpx (https://www.python-httpx.org/) - BSD License
+- boto3 (https://boto3.amazonaws.com/v1/documentation/) - Apache License 2.0
+- packaging (https://packaging.pypa.io/) - Apache License 2.0 / BSD License
+- Jinja2 (https://jinja.palletsprojects.com/) - BSD License
+- Hypothesis (https://hypothesis.readthedocs.io/) - Mozilla Public License 2.0
+- pytest (https://docs.pytest.org/) - MIT License
+- moto (https://docs.getmoto.org/) - Apache License 2.0

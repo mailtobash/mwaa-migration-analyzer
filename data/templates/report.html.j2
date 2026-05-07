@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MWAA Migration Assessment Report</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #1a1a2e;
+            border-bottom: 3px solid #e94560;
+            padding-bottom: 0.5rem;
+        }
+        h2 {
+            color: #16213e;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 0.3rem;
+            margin-top: 2rem;
+        }
+        h3 {
+            color: #0f3460;
+            margin-top: 1.5rem;
+        }
+        .recommendation {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+        .recommendation.not-possible {
+            background-color: #ffebee;
+            border-left-color: #f44336;
+        }
+        .recommendation.modernize {
+            background-color: #fff3e0;
+            border-left-color: #ff9800;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background-color: #fff;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+        }
+        th {
+            background-color: #16213e;
+            color: #fff;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .status-compatible { color: #4caf50; font-weight: bold; }
+        .status-incompatible { color: #f44336; font-weight: bold; }
+        .status-requires-modification { color: #ff9800; font-weight: bold; }
+        .status-version-conflict { color: #ff9800; font-weight: bold; }
+        .status-unsupported { color: #f44336; font-weight: bold; }
+        .status-unavailable { color: #2196f3; font-weight: bold; }
+        .effort-low { color: #4caf50; }
+        .effort-medium { color: #ff9800; }
+        .effort-high { color: #f44336; }
+        .blocker {
+            background-color: #ffebee;
+            border: 1px solid #f44336;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+        }
+        .action-item {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .metadata {
+            background-color: #e3f2fd;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 2rem;
+        }
+        .metadata dt {
+            font-weight: bold;
+            display: inline;
+        }
+        .metadata dd {
+            display: inline;
+            margin-left: 0.5rem;
+            margin-right: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>MWAA Migration Assessment Report</h1>
+
+    <h2>Executive Summary</h2>
+    <p>{{ executive_summary }}</p>
+
+    <h2>Migration Recommendation</h2>
+    <div class="recommendation {{ recommendation_css_class }}">
+        <strong>{{ recommendation_display }}</strong>
+        <p>{{ recommendation_description }}</p>
+    </div>
+
+    <h2>Detailed Findings</h2>
+    {% for category_name, category_findings in findings_by_category.items() %}
+    <h3>{{ category_name }}</h3>
+    {% if category_findings %}
+    <table>
+        <thead>
+            <tr>
+                <th>Identifier</th>
+                <th>Status</th>
+                <th>Issues</th>
+                <th>Recommendations</th>
+                <th>Effort</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in category_findings %}
+            <tr>
+                <td>{{ f.identifier }}</td>
+                <td><span class="status-{{ f.status | replace('_', '-') }}">{{ f.status }}</span></td>
+                <td>{{ f.issues | join('; ') if f.issues else 'None' }}</td>
+                <td>{{ f.recommendations | join('; ') if f.recommendations else 'None' }}</td>
+                <td>{% if f.effort %}<span class="effort-{{ f.effort }}">{{ f.effort }}</span>{% else %}N/A{% endif %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No findings in this category.</p>
+    {% endif %}
+    {% endfor %}
+
+    <h2>Action Items</h2>
+    {% if action_items %}
+    <ol>
+        {% for item in action_items %}
+        <li class="action-item">
+            <span class="effort-{{ item.effort }}">[{{ item.effort }}]</span>
+            <strong>{{ item.identifier }}</strong>: {{ item.issues | join('; ') }}
+        </li>
+        {% endfor %}
+    </ol>
+    {% else %}
+    <p>No action items required.</p>
+    {% endif %}
+
+    {% if blockers %}
+    <h2>Blockers</h2>
+    <p>The following incompatible findings block migration to MWAA:</p>
+    {% for blocker in blockers %}
+    <div class="blocker">
+        <strong>{{ blocker.identifier }}</strong>: {{ blocker.issues | join('; ') }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <h2>Metadata</h2>
+    <div class="metadata">
+        <dl>
+            <dt>Timestamp:</dt><dd>{{ metadata.timestamp }}</dd>
+            <dt>Source Type:</dt><dd>{{ metadata.source_type }}</dd>
+            <dt>Target MWAA Version:</dt><dd>{{ metadata.target_mwaa_version }}</dd>
+            <dt>Tool Version:</dt><dd>{{ metadata.tool_version }}</dd>
+        </dl>
+    </div>
+</body>
+</html>

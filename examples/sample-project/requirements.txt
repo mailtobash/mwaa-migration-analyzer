@@ -1,0 +1,19 @@
+# Core Airflow dependencies
+apache-airflow==2.10.3
+apache-airflow-providers-amazon==9.0.0
+
+# Compatible packages (pre-installed in MWAA)
+boto3>=1.34.0
+requests>=2.31.0
+pendulum>=3.0.0
+
+# Package with version conflict (MWAA provides SQLAlchemy 1.4.54)
+SQLAlchemy>=2.0.0
+
+# Package not pre-installed in MWAA (will need to be added to MWAA requirements)
+slack-sdk>=3.21.0
+great-expectations>=0.18.0
+
+# Known incompatible package (requires system-level C libraries)
+pandas>=2.0.0
+numpy>=1.24.0

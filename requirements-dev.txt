@@ -1,0 +1,5 @@
+-r requirements.txt
+hypothesis>=6.100
+pytest>=8.0
+pytest-mock>=3.12
+moto>=5.0

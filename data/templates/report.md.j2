@@ -1,0 +1,55 @@
+# MWAA Migration Assessment Report
+
+## Executive Summary
+
+{{ executive_summary }}
+
+## Migration Recommendation
+
+**{{ recommendation_display }}**
+
+{{ recommendation_description }}
+
+## Detailed Findings
+
+{% for category_name, category_findings in findings_by_category.items() %}
+### {{ category_name }}
+
+{% if category_findings %}
+| Identifier | Status | Issues | Recommendations | Effort |
+|---|---|---|---|---|
+{% for f in category_findings %}
+| {{ f.identifier }} | {{ f.status }} | {{ f.issues | join('; ') if f.issues else 'None' }} | {{ f.recommendations | join('; ') if f.recommendations else 'None' }} | {{ f.effort if f.effort else 'N/A' }} |
+{% endfor %}
+{% else %}
+No findings in this category.
+
+{% endif %}
+{% endfor %}
+
+## Action Items
+
+{% if action_items %}
+{% for item in action_items %}
+{{ loop.index }}. **[{{ item.effort }}]** {{ item.identifier }}: {{ item.issues | join('; ') }}
+{% endfor %}
+{% else %}
+No action items required.
+{% endif %}
+
+{% if blockers %}
+## Blockers
+
+The following incompatible findings block migration to MWAA:
+
+{% for blocker in blockers %}
+- **{{ blocker.identifier }}**: {{ blocker.issues | join('; ') }}
+{% endfor %}
+{% endif %}
+
+## Metadata
+
+- **Timestamp**: {{ metadata.timestamp }}
+- **Source Type**: {{ metadata.source_type }}
+- **Target MWAA Version**: {{ metadata.target_mwaa_version }}
+- **Tool Version**: {{ metadata.tool_version }}
