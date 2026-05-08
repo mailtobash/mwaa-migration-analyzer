@@ -101,7 +101,6 @@ Formatted HTML report for sharing via browser:
 
 | Variable | Description |
 |----------|-------------|
-| `MWAA_ANALYZER_TELEMETRY_OPT_OUT` | Set to `true` to disable anonymous telemetry collection |
 | `AIRFLOW_API_ENDPOINT` | Airflow REST API endpoint URL (alternative to `--endpoint` flag) |
 | `AIRFLOW_API_TOKEN` | Airflow REST API auth token (alternative to `--token` flag) |
 | `MWAA_ENVIRONMENT_NAME` | MWAA environment name (alternative to `--environment-name` flag) |

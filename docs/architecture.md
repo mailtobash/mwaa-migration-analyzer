@@ -59,10 +59,6 @@ Each tool analyzes a specific aspect of the Airflow environment:
 | Plugin Analyzer | `plugin_analyzer.py` | Inspects custom plugins for incompatible patterns |
 | Report Generator | `report_generator.py` | Renders findings into the final report using Jinja2 templates |
 
-### Telemetry (`src/telemetry.py`)
-
-Collects anonymous usage statistics. Opt out by setting `MWAA_ANALYZER_TELEMETRY_OPT_OUT=true`. Events are buffered and sent via HTTPS POST; network failures are silently discarded.
-
 ## Three-Outcome Decision Framework
 
 After all tools complete, the agent determines exactly one migration recommendation:

@@ -97,14 +97,6 @@ Yes, but you must set `PYTHONPATH` to include the `src/` directory. See the "Imp
 
 Python 3.11 or later.
 
-**Q: How do I disable telemetry?**
-
-Set the environment variable before running:
-
-```bash
-export MWAA_ANALYZER_TELEMETRY_OPT_OUT=true
-```
-
 **Q: Where are analysis reports saved?**
 
 By default, reports are printed to stdout. Use `--output-file` to save to a file:

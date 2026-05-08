@@ -126,11 +126,9 @@ class TestInvalidFlagCombinations:
 class TestValidFlagCombinations:
     """Test that valid flag combinations work correctly."""
 
-    @patch("cli.TelemetryCollector")
     @patch("cli.create_connector")
-    def test_filesystem_valid(self, mock_create_connector, mock_telemetry_cls, runner, mock_run_analysis, tmp_path):
+    def test_filesystem_valid(self, mock_create_connector, runner, mock_run_analysis, tmp_path):
         mock_create_connector.return_value = _make_mock_connector()
-        mock_telemetry_cls.return_value = MagicMock()
 
         result = runner.invoke(cli, [
             "analyze", "--source-type", "filesystem", "--path", str(tmp_path)
@@ -138,11 +136,9 @@ class TestValidFlagCombinations:
         assert result.exit_code == 0, f"Unexpected error: {result.output}"
         mock_create_connector.assert_called_once()
 
-    @patch("cli.TelemetryCollector")
     @patch("cli.create_connector")
-    def test_api_valid(self, mock_create_connector, mock_telemetry_cls, runner, mock_run_analysis):
+    def test_api_valid(self, mock_create_connector, runner, mock_run_analysis):
         mock_create_connector.return_value = _make_mock_connector()
-        mock_telemetry_cls.return_value = MagicMock()
 
         result = runner.invoke(cli, [
             "analyze", "--source-type", "api",
@@ -152,11 +148,9 @@ class TestValidFlagCombinations:
         assert result.exit_code == 0, f"Unexpected error: {result.output}"
         mock_create_connector.assert_called_once()
 
-    @patch("cli.TelemetryCollector")
     @patch("cli.create_connector")
-    def test_mwaa_valid(self, mock_create_connector, mock_telemetry_cls, runner, mock_run_analysis):
+    def test_mwaa_valid(self, mock_create_connector, runner, mock_run_analysis):
         mock_create_connector.return_value = _make_mock_connector()
-        mock_telemetry_cls.return_value = MagicMock()
 
         result = runner.invoke(cli, [
             "analyze", "--source-type", "mwaa",
@@ -175,11 +169,9 @@ class TestValidFlagCombinations:
 class TestEnvironmentVariableCredentials:
     """Test that credentials can be provided via environment variables."""
 
-    @patch("cli.TelemetryCollector")
     @patch("cli.create_connector")
-    def test_api_credentials_from_env(self, mock_create_connector, mock_telemetry_cls, mock_run_analysis):
+    def test_api_credentials_from_env(self, mock_create_connector, mock_run_analysis):
         mock_create_connector.return_value = _make_mock_connector()
-        mock_telemetry_cls.return_value = MagicMock()
 
         env_runner = CliRunner(env={
             "AIRFLOW_API_ENDPOINT": "https://airflow.example.com",
@@ -192,11 +184,9 @@ class TestEnvironmentVariableCredentials:
         ])
         assert result.exit_code == 0, f"Unexpected error: {result.output}"
 
-    @patch("cli.TelemetryCollector")
     @patch("cli.create_connector")
-    def test_mwaa_credentials_from_env(self, mock_create_connector, mock_telemetry_cls, mock_run_analysis):
+    def test_mwaa_credentials_from_env(self, mock_create_connector, mock_run_analysis):
         mock_create_connector.return_value = _make_mock_connector()
-        mock_telemetry_cls.return_value = MagicMock()
 
         env_runner = CliRunner(env={
             "AIRFLOW_API_ENDPOINT": "",
@@ -218,11 +208,9 @@ class TestEnvironmentVariableCredentials:
 class TestCredentialWarning:
     """Test that credential warnings are displayed when CLI flags are used."""
 
-    @patch("cli.TelemetryCollector")
     @patch("cli.create_connector")
-    def test_warning_shown_for_api_cli_flags(self, mock_create_connector, mock_telemetry_cls, runner, mock_run_analysis):
+    def test_warning_shown_for_api_cli_flags(self, mock_create_connector, runner, mock_run_analysis):
         mock_create_connector.return_value = _make_mock_connector()
-        mock_telemetry_cls.return_value = MagicMock()
 
         result = runner.invoke(cli, [
             "analyze", "--source-type", "api",
@@ -232,11 +220,9 @@ class TestCredentialWarning:
         assert result.exit_code == 0
         assert "WARNING" in result.output or "shell history" in result.output
 
-    @patch("cli.TelemetryCollector")
     @patch("cli.create_connector")
-    def test_no_warning_for_env_var_credentials(self, mock_create_connector, mock_telemetry_cls, mock_run_analysis):
+    def test_no_warning_for_env_var_credentials(self, mock_create_connector, mock_run_analysis):
         mock_create_connector.return_value = _make_mock_connector()
-        mock_telemetry_cls.return_value = MagicMock()
 
         env_runner = CliRunner(env={
             "AIRFLOW_API_ENDPOINT": "https://airflow.example.com",
@@ -259,11 +245,9 @@ class TestCredentialWarning:
 class TestOutputOptions:
     """Test output format and output file options."""
 
-    @patch("cli.TelemetryCollector")
     @patch("cli.create_connector")
-    def test_output_format_json(self, mock_create_connector, mock_telemetry_cls, runner, mock_run_analysis, tmp_path):
+    def test_output_format_json(self, mock_create_connector, runner, mock_run_analysis, tmp_path):
         mock_create_connector.return_value = _make_mock_connector()
-        mock_telemetry_cls.return_value = MagicMock()
 
         result = runner.invoke(cli, [
             "analyze", "--source-type", "filesystem",
@@ -276,11 +260,9 @@ class TestOutputOptions:
         call_kwargs = mock_run_analysis.call_args[1]
         assert call_kwargs["output_format"] == "json"
 
-    @patch("cli.TelemetryCollector")
     @patch("cli.create_connector")
-    def test_output_format_html(self, mock_create_connector, mock_telemetry_cls, runner, mock_run_analysis, tmp_path):
+    def test_output_format_html(self, mock_create_connector, runner, mock_run_analysis, tmp_path):
         mock_create_connector.return_value = _make_mock_connector()
-        mock_telemetry_cls.return_value = MagicMock()
 
         result = runner.invoke(cli, [
             "analyze", "--source-type", "filesystem",
@@ -291,11 +273,9 @@ class TestOutputOptions:
         call_kwargs = mock_run_analysis.call_args[1]
         assert call_kwargs["output_format"] == "html"
 
-    @patch("cli.TelemetryCollector")
     @patch("cli.create_connector")
-    def test_output_file(self, mock_create_connector, mock_telemetry_cls, runner, mock_run_analysis, tmp_path):
+    def test_output_file(self, mock_create_connector, runner, mock_run_analysis, tmp_path):
         mock_create_connector.return_value = _make_mock_connector()
-        mock_telemetry_cls.return_value = MagicMock()
 
         output_path = str(tmp_path / "report.md")
         result = runner.invoke(cli, [
@@ -309,11 +289,9 @@ class TestOutputOptions:
             content = f.read()
         assert "Migration Report" in content
 
-    @patch("cli.TelemetryCollector")
     @patch("cli.create_connector")
-    def test_output_to_stdout(self, mock_create_connector, mock_telemetry_cls, runner, mock_run_analysis, tmp_path):
+    def test_output_to_stdout(self, mock_create_connector, runner, mock_run_analysis, tmp_path):
         mock_create_connector.return_value = _make_mock_connector()
-        mock_telemetry_cls.return_value = MagicMock()
 
         result = runner.invoke(cli, [
             "analyze", "--source-type", "filesystem",
@@ -331,11 +309,9 @@ class TestOutputOptions:
 class TestTargetMwaaVersion:
     """Test target MWAA version flag."""
 
-    @patch("cli.TelemetryCollector")
     @patch("cli.create_connector")
-    def test_custom_target_version(self, mock_create_connector, mock_telemetry_cls, runner, mock_run_analysis, tmp_path):
+    def test_custom_target_version(self, mock_create_connector, runner, mock_run_analysis, tmp_path):
         mock_create_connector.return_value = _make_mock_connector()
-        mock_telemetry_cls.return_value = MagicMock()
 
         result = runner.invoke(cli, [
             "analyze", "--source-type", "filesystem",
@@ -346,11 +322,9 @@ class TestTargetMwaaVersion:
         call_kwargs = mock_run_analysis.call_args[1]
         assert call_kwargs["target_mwaa_version"] == "2.8.1"
 
-    @patch("cli.TelemetryCollector")
     @patch("cli.create_connector")
-    def test_default_target_version(self, mock_create_connector, mock_telemetry_cls, runner, mock_run_analysis, tmp_path):
+    def test_default_target_version(self, mock_create_connector, runner, mock_run_analysis, tmp_path):
         mock_create_connector.return_value = _make_mock_connector()
-        mock_telemetry_cls.return_value = MagicMock()
 
         result = runner.invoke(cli, [
             "analyze", "--source-type", "filesystem",
@@ -369,11 +343,9 @@ class TestTargetMwaaVersion:
 class TestVerboseFlag:
     """Test verbose flag behavior."""
 
-    @patch("cli.TelemetryCollector")
     @patch("cli.create_connector")
-    def test_verbose_passed_to_analysis(self, mock_create_connector, mock_telemetry_cls, runner, mock_run_analysis, tmp_path):
+    def test_verbose_passed_to_analysis(self, mock_create_connector, runner, mock_run_analysis, tmp_path):
         mock_create_connector.return_value = _make_mock_connector()
-        mock_telemetry_cls.return_value = MagicMock()
 
         result = runner.invoke(cli, [
             "analyze", "--source-type", "filesystem",
@@ -384,11 +356,9 @@ class TestVerboseFlag:
         call_kwargs = mock_run_analysis.call_args[1]
         assert call_kwargs["verbose"] is True
 
-    @patch("cli.TelemetryCollector")
     @patch("cli.create_connector")
-    def test_no_verbose_by_default(self, mock_create_connector, mock_telemetry_cls, runner, mock_run_analysis, tmp_path):
+    def test_no_verbose_by_default(self, mock_create_connector, runner, mock_run_analysis, tmp_path):
         mock_create_connector.return_value = _make_mock_connector()
-        mock_telemetry_cls.return_value = MagicMock()
 
         result = runner.invoke(cli, [
             "analyze", "--source-type", "filesystem",
@@ -407,13 +377,11 @@ class TestVerboseFlag:
 class TestErrorHandling:
     """Test error handling for connector failures."""
 
-    @patch("cli.TelemetryCollector")
     @patch("cli.create_connector")
-    def test_connection_error(self, mock_create_connector, mock_telemetry_cls, runner):
+    def test_connection_error(self, mock_create_connector, runner):
         connector = _make_mock_connector()
         connector.connect.side_effect = ConnectionError("Auth failed")
         mock_create_connector.return_value = connector
-        mock_telemetry_cls.return_value = MagicMock()
 
         result = runner.invoke(cli, [
             "analyze", "--source-type", "api",
@@ -423,13 +391,11 @@ class TestErrorHandling:
         assert result.exit_code != 0
         assert "Auth failed" in result.output
 
-    @patch("cli.TelemetryCollector")
     @patch("cli.create_connector")
-    def test_timeout_error(self, mock_create_connector, mock_telemetry_cls, runner):
+    def test_timeout_error(self, mock_create_connector, runner):
         connector = _make_mock_connector()
         connector.connect.side_effect = TimeoutError("Connection timed out")
         mock_create_connector.return_value = connector
-        mock_telemetry_cls.return_value = MagicMock()
 
         result = runner.invoke(cli, [
             "analyze", "--source-type", "api",

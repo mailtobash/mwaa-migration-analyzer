@@ -127,18 +127,6 @@ class MigrationReport:
 
 
 @dataclass
-class TelemetryEvent:
-    """An anonymous telemetry event for usage tracking."""
-
-    event_type: str
-    source_type: str
-    recommendation: str | None = None
-    dag_count: int = 0
-    duration_seconds: float = 0.0
-    error_category: str | None = None
-
-
-@dataclass
 class MWAAVersionManifest:
     """Compatibility manifest for a specific MWAA Airflow version."""
 

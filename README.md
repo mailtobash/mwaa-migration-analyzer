@@ -78,16 +78,6 @@ The generated report includes:
 - **Action Items** — Prioritized list of required changes
 - **Metadata** — Analysis timestamp, source type, target version, tool version
 
-## Telemetry
-
-The tool collects anonymous usage statistics to help maintainers understand adoption patterns. No personally identifiable information is collected.
-
-To opt out:
-
-```bash
-export MWAA_ANALYZER_TELEMETRY_OPT_OUT=true
-```
-
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, coding standards, and pull request guidelines.

@@ -11,15 +11,13 @@ from __future__ import annotations
 import logging
 import os
 import sys
-import time
 
 try:
     import click
 
     from agent import run_analysis
     from connectors import create_connector
-    from models import SourceType, TelemetryEvent
-    from telemetry import TelemetryCollector
+    from models import SourceType
 
     _IMPORT_ERROR: ImportError | None = None
 except ImportError as e:
@@ -277,11 +275,7 @@ def analyze(
     if cli_flag_used:
         click.echo(_CREDENTIAL_CLI_WARNING, err=True)
 
-    # Step 4: Show telemetry first-run notice
-    telemetry = TelemetryCollector(endpoint="https://telemetry.example.com")
-    telemetry.show_first_run_notice()
-
-    # Step 5: Create the appropriate connector
+    # Step 4: Create the appropriate connector
     source_type_enum = SourceType(source_type)
     connector_kwargs: dict[str, object] = {}
     if source_type == "api":
@@ -293,28 +287,14 @@ def analyze(
     elif source_type == "filesystem":
         connector_kwargs["path"] = resolved["path"]
 
-    # Track timing for telemetry
-    start_time = time.monotonic()
-    error_category: str | None = None
-
     try:
         connector = create_connector(source_type_enum, **connector_kwargs)
 
-        # Step 6: Connect and retrieve environment data
+        # Step 5: Connect and retrieve environment data
         connector.connect()
         env_data = _collect_environment_data(connector)
 
-        # Record analysis-start telemetry event
-        dag_count = len(env_data["dag_files"])
-        telemetry.record_event(
-            TelemetryEvent(
-                event_type="analysis_start",
-                source_type=source_type,
-                dag_count=dag_count,
-            )
-        )
-
-        # Step 7: Run analysis
+        # Step 6: Run analysis
         result = run_analysis(
             dag_files=env_data["dag_files"],
             requirements_content=env_data["requirements_content"],
@@ -331,21 +311,8 @@ def analyze(
         )
 
         report_content = result.get("report_content", "")
-        recommendation = result.get("recommendation")
 
-        # Record analysis-complete telemetry event
-        duration = time.monotonic() - start_time
-        telemetry.record_event(
-            TelemetryEvent(
-                event_type="analysis_complete",
-                source_type=source_type,
-                recommendation=recommendation,
-                dag_count=dag_count,
-                duration_seconds=round(duration, 2),
-            )
-        )
-
-        # Step 8: Write report to stdout or file
+        # Step 7: Write report to stdout or file
         if output_file:
             with open(output_file, "w", encoding="utf-8") as f:
                 f.write(report_content)
@@ -354,30 +321,13 @@ def analyze(
             click.echo(report_content)
 
     except (FileNotFoundError, NotADirectoryError, ConnectionError, TimeoutError, ValueError, PermissionError) as exc:
-        error_category = type(exc).__name__
         click.echo(f"Error: {exc}", err=True)
         sys.exit(1)
     except Exception as exc:
-        error_category = type(exc).__name__
         click.echo(f"Unexpected error: {exc}", err=True)
         sys.exit(1)
     finally:
-        # Record error telemetry if an error occurred
-        if error_category is not None:
-            duration = time.monotonic() - start_time
-            telemetry.record_event(
-                TelemetryEvent(
-                    event_type="analysis_error",
-                    source_type=source_type,
-                    error_category=error_category,
-                    duration_seconds=round(duration, 2),
-                )
-            )
-
-        # Flush all buffered telemetry events
-        telemetry.flush()
-
-        # Step 9: Clear credentials from memory (Requirement 11.3)
+        # Clear credentials from memory (Requirement 11.3)
         _clear_credentials(resolved)
 
 

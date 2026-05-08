@@ -11,7 +11,6 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from unittest.mock import MagicMock, patch
 
 import pytest
 from click.testing import CliRunner
@@ -179,7 +178,6 @@ def runner():
             "AIRFLOW_API_TOKEN": "",
             "MWAA_ENVIRONMENT_NAME": "",
             "MWAA_REGION": "",
-            "MWAA_ANALYZER_TELEMETRY_OPT_OUT": "true",
         },
     )
 
@@ -235,10 +233,8 @@ def _create_airflow_project(
 class TestFilesystemLiftAndShift:
     """End-to-end tests for environments that are fully compatible (Lift and Shift)."""
 
-    @patch("cli.TelemetryCollector")
-    def test_all_compatible_markdown(self, mock_telemetry_cls, runner, tmp_path):
+    def test_all_compatible_markdown(self, runner, tmp_path):
         """A fully compatible project should produce a Lift and Shift recommendation."""
-        mock_telemetry_cls.return_value = MagicMock()
         project = _create_airflow_project(
             tmp_path,
             dags={"compatible_dag.py": _COMPATIBLE_DAG},
@@ -258,10 +254,8 @@ class TestFilesystemLiftAndShift:
         # Report should contain the recommendation
         assert "Lift and Shift" in output or "lift_and_shift" in output
 
-    @patch("cli.TelemetryCollector")
-    def test_all_compatible_json(self, mock_telemetry_cls, runner, tmp_path):
+    def test_all_compatible_json(self, runner, tmp_path):
         """JSON output for a fully compatible project should be valid JSON with expected keys."""
-        mock_telemetry_cls.return_value = MagicMock()
         project = _create_airflow_project(
             tmp_path,
             dags={"compatible_dag.py": _COMPATIBLE_DAG},
@@ -286,10 +280,8 @@ class TestFilesystemLiftAndShift:
         assert "metadata" in report
         assert report["recommendation"] == "lift_and_shift"
 
-    @patch("cli.TelemetryCollector")
-    def test_all_compatible_html(self, mock_telemetry_cls, runner, tmp_path):
+    def test_all_compatible_html(self, runner, tmp_path):
         """HTML output should be self-contained with expected tags."""
-        mock_telemetry_cls.return_value = MagicMock()
         project = _create_airflow_project(
             tmp_path,
             dags={"compatible_dag.py": _COMPATIBLE_DAG},
@@ -312,10 +304,8 @@ class TestFilesystemLiftAndShift:
         assert "<body>" in output
         assert "<style>" in output
 
-    @patch("cli.TelemetryCollector")
-    def test_empty_project(self, mock_telemetry_cls, runner, tmp_path):
+    def test_empty_project(self, runner, tmp_path):
         """An empty project (no dags, no requirements, no config, no plugins) should still produce a report."""
-        mock_telemetry_cls.return_value = MagicMock()
         project = _create_airflow_project(tmp_path)
 
         result = runner.invoke(cli, [
@@ -337,10 +327,8 @@ class TestFilesystemLiftAndShift:
 class TestFilesystemLiftAndModernize:
     """End-to-end tests for environments requiring modification (Lift and Modernize)."""
 
-    @patch("cli.TelemetryCollector")
-    def test_subdag_requires_modernization(self, mock_telemetry_cls, runner, tmp_path):
+    def test_subdag_requires_modernization(self, runner, tmp_path):
         """A project with SubDagOperator should recommend Lift and Modernize."""
-        mock_telemetry_cls.return_value = MagicMock()
         project = _create_airflow_project(
             tmp_path,
             dags={"subdag_dag.py": _SUBDAG_DAG},
@@ -357,10 +345,8 @@ class TestFilesystemLiftAndModernize:
         # Should detect SubDAG and recommend modernization
         assert "SubDAG" in output or "SubDag" in output or "subdag" in output.lower()
 
-    @patch("cli.TelemetryCollector")
-    def test_metadata_db_access_requires_modernization(self, mock_telemetry_cls, runner, tmp_path):
+    def test_metadata_db_access_requires_modernization(self, runner, tmp_path):
         """A project with direct metadata DB access should recommend Lift and Modernize."""
-        mock_telemetry_cls.return_value = MagicMock()
         project = _create_airflow_project(
             tmp_path,
             dags={"metadata_db_dag.py": _METADATA_DB_DAG},
@@ -376,10 +362,8 @@ class TestFilesystemLiftAndModernize:
         output = result.output
         assert "metadata" in output.lower() or "session" in output.lower()
 
-    @patch("cli.TelemetryCollector")
-    def test_local_filesystem_usage(self, mock_telemetry_cls, runner, tmp_path):
+    def test_local_filesystem_usage(self, runner, tmp_path):
         """A project using local filesystem paths should recommend Lift and Modernize."""
-        mock_telemetry_cls.return_value = MagicMock()
         project = _create_airflow_project(
             tmp_path,
             dags={"local_fs_dag.py": _LOCAL_FS_DAG},
@@ -395,10 +379,8 @@ class TestFilesystemLiftAndModernize:
         output = result.output
         assert "/tmp" in output or "local filesystem" in output.lower() or "S3" in output
 
-    @patch("cli.TelemetryCollector")
-    def test_unsupported_config_keys(self, mock_telemetry_cls, runner, tmp_path):
+    def test_unsupported_config_keys(self, runner, tmp_path):
         """A project with unsupported config keys should recommend Lift and Modernize."""
-        mock_telemetry_cls.return_value = MagicMock()
         project = _create_airflow_project(
             tmp_path,
             dags={"compatible_dag.py": _COMPATIBLE_DAG},
@@ -416,10 +398,8 @@ class TestFilesystemLiftAndModernize:
         # Should flag unsupported config
         assert "unsupported" in output.lower() or "Modernize" in output or "modernize" in output.lower()
 
-    @patch("cli.TelemetryCollector")
-    def test_subprocess_plugin(self, mock_telemetry_cls, runner, tmp_path):
+    def test_subprocess_plugin(self, runner, tmp_path):
         """A project with subprocess calls in plugins should recommend Lift and Modernize."""
-        mock_telemetry_cls.return_value = MagicMock()
         project = _create_airflow_project(
             tmp_path,
             dags={"compatible_dag.py": _COMPATIBLE_DAG},
@@ -436,10 +416,8 @@ class TestFilesystemLiftAndModernize:
         output = result.output
         assert "subprocess" in output.lower() or "system resource" in output.lower()
 
-    @patch("cli.TelemetryCollector")
-    def test_config_with_filesystem_path(self, mock_telemetry_cls, runner, tmp_path):
+    def test_config_with_filesystem_path(self, runner, tmp_path):
         """A project with filesystem paths in config values should flag them."""
-        mock_telemetry_cls.return_value = MagicMock()
         project = _create_airflow_project(
             tmp_path,
             dags={"compatible_dag.py": _COMPATIBLE_DAG},
@@ -456,10 +434,8 @@ class TestFilesystemLiftAndModernize:
         output = result.output
         assert "path" in output.lower() or "filesystem" in output.lower()
 
-    @patch("cli.TelemetryCollector")
-    def test_modernize_json_has_action_items(self, mock_telemetry_cls, runner, tmp_path):
+    def test_modernize_json_has_action_items(self, runner, tmp_path):
         """JSON output for Lift and Modernize should include action items."""
-        mock_telemetry_cls.return_value = MagicMock()
         project = _create_airflow_project(
             tmp_path,
             dags={"subdag_dag.py": _SUBDAG_DAG},
@@ -487,10 +463,8 @@ class TestFilesystemLiftAndModernize:
 class TestFilesystemNotPossible:
     """End-to-end tests for environments with incompatible components (Not Possible)."""
 
-    @patch("cli.TelemetryCollector")
-    def test_incompatible_dependency(self, mock_telemetry_cls, runner, tmp_path):
+    def test_incompatible_dependency(self, runner, tmp_path):
         """A project with incompatible system-level dependencies should recommend Not Possible."""
-        mock_telemetry_cls.return_value = MagicMock()
         project = _create_airflow_project(
             tmp_path,
             dags={"compatible_dag.py": _COMPATIBLE_DAG},
@@ -507,10 +481,8 @@ class TestFilesystemNotPossible:
         output = result.output
         assert "Not Possible" in output or "not_possible" in output
 
-    @patch("cli.TelemetryCollector")
-    def test_not_possible_json_has_blockers(self, mock_telemetry_cls, runner, tmp_path):
+    def test_not_possible_json_has_blockers(self, runner, tmp_path):
         """JSON output for Not Possible should include blockers."""
-        mock_telemetry_cls.return_value = MagicMock()
         project = _create_airflow_project(
             tmp_path,
             dags={"compatible_dag.py": _COMPATIBLE_DAG},
@@ -539,10 +511,8 @@ class TestFilesystemNotPossible:
 class TestFilesystemOutputFile:
     """Test writing report output to a file."""
 
-    @patch("cli.TelemetryCollector")
-    def test_output_to_file(self, mock_telemetry_cls, runner, tmp_path):
+    def test_output_to_file(self, runner, tmp_path):
         """Report should be written to the specified output file."""
-        mock_telemetry_cls.return_value = MagicMock()
         project = _create_airflow_project(
             tmp_path,
             dags={"compatible_dag.py": _COMPATIBLE_DAG},
@@ -570,10 +540,8 @@ class TestFilesystemOutputFile:
 class TestReportSections:
     """Verify that reports contain all required sections."""
 
-    @patch("cli.TelemetryCollector")
-    def test_markdown_report_sections(self, mock_telemetry_cls, runner, tmp_path):
+    def test_markdown_report_sections(self, runner, tmp_path):
         """Markdown report should contain executive summary, recommendation, findings, and metadata."""
-        mock_telemetry_cls.return_value = MagicMock()
         project = _create_airflow_project(
             tmp_path,
             dags={"compatible_dag.py": _COMPATIBLE_DAG},
@@ -595,10 +563,8 @@ class TestReportSections:
         assert "findings" in output or "dags" in output
         assert "metadata" in output or "version" in output
 
-    @patch("cli.TelemetryCollector")
-    def test_json_report_all_keys(self, mock_telemetry_cls, runner, tmp_path):
+    def test_json_report_all_keys(self, runner, tmp_path):
         """JSON report should contain all required top-level keys."""
-        mock_telemetry_cls.return_value = MagicMock()
         project = _create_airflow_project(
             tmp_path,
             dags={"compatible_dag.py": _COMPATIBLE_DAG, "subdag_dag.py": _SUBDAG_DAG},
@@ -630,10 +596,8 @@ class TestReportSections:
         assert "Configuration" in categories
         assert "Plugins" in categories
 
-    @patch("cli.TelemetryCollector")
-    def test_json_metadata_fields(self, mock_telemetry_cls, runner, tmp_path):
+    def test_json_metadata_fields(self, runner, tmp_path):
         """JSON report metadata should contain source_type, target_mwaa_version, and tool_version."""
-        mock_telemetry_cls.return_value = MagicMock()
         project = _create_airflow_project(
             tmp_path,
             dags={"compatible_dag.py": _COMPATIBLE_DAG},
@@ -662,10 +626,8 @@ class TestReportSections:
 class TestFilesystemMixedScenarios:
     """Test scenarios with a mix of compatible and incompatible components."""
 
-    @patch("cli.TelemetryCollector")
-    def test_mixed_dags_compatible_and_subdag(self, mock_telemetry_cls, runner, tmp_path):
+    def test_mixed_dags_compatible_and_subdag(self, runner, tmp_path):
         """A project with both compatible and SubDAG DAGs should flag the SubDAG one."""
-        mock_telemetry_cls.return_value = MagicMock()
         project = _create_airflow_project(
             tmp_path,
             dags={
@@ -690,10 +652,8 @@ class TestFilesystemMixedScenarios:
         has_issues = any(len(f["issues"]) > 0 for f in dag_findings)
         assert has_issues
 
-    @patch("cli.TelemetryCollector")
-    def test_multiple_issues_across_categories(self, mock_telemetry_cls, runner, tmp_path):
+    def test_multiple_issues_across_categories(self, runner, tmp_path):
         """A project with issues in multiple categories should report all of them."""
-        mock_telemetry_cls.return_value = MagicMock()
         project = _create_airflow_project(
             tmp_path,
             dags={"subdag_dag.py": _SUBDAG_DAG},
